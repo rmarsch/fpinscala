@@ -35,8 +35,20 @@ object MyModule {
   }
 
   // Exercise 1: Write a function to compute the nth fibonacci number
-
-  def fib(n: Int): Int = ???
+  var memo: Map[Int,Int] = Map.empty[Int,Int]
+  
+  def fib(n: Int): Int = {
+    def go(n: Int): Int = n match {
+      case n if n < 3 => 1
+      case n => {
+        val one = memo.getOrElse(n-1, { val x = go(n-1); memo += n-1 -> x; x })
+        val two = memo.getOrElse(n-2, { val x = go(n-2); memo += n-2 -> x; x })
+        one + two
+      }
+    }
+    
+    go(n)
+  }
 
   // This definition and `formatAbs` are very similar..
   private def formatFactorial(n: Int) = {
@@ -129,7 +141,15 @@ object PolymorphicFunctions {
 
   // Exercise 2: Implement a polymorphic function to check whether
   // an `Array[A]` is sorted
-  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = ???
+  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = {
+    def go(idx: Int): Boolean = {
+      if(idx < (as.length-1)) {
+        if(gt(as(idx), as(idx+1))) false else go(idx+1)
+      } else true
+    }
+    
+    go(0)
+  }
 
   // Polymorphic functions are often so constrained by their type
   // that they only have one implementation! Here's an example:
@@ -141,14 +161,13 @@ object PolymorphicFunctions {
 
   // Note that `=>` associates to the right, so we could
   // write the return type as `A => B => C`
-  def curry[A,B,C](f: (A, B) => C): A => (B => C) =
-    ???
+  def curry[A,B,C](f: (A, B) => C): A => (B => C) = { a:A => b:B => f(a,b) }
+
 
   // NB: The `Function2` trait has a `curried` method already
 
   // Exercise 4: Implement `uncurry`
-  def uncurry[A,B,C](f: A => B => C): (A, B) => C =
-    ???
+  def uncurry[A,B,C](f: A => B => C): (A, B) => C = { (a:A, b:B) => f(a)(b) }
 
   /*
   NB: There is a method on the `Function` object in the standard library,
@@ -162,6 +181,5 @@ object PolymorphicFunctions {
 
   // Exercise 5: Implement `compose`
 
-  def compose[A,B,C](f: B => C, g: A => B): A => C =
-    ???
+  def compose[A,B,C](f: B => C, g: A => B): A => C = { x:A => f(g(x)) }
 }

@@ -96,9 +96,8 @@ final case class Actor[A](strategy: Strategy)(handler: A => Unit, onError: Throw
 private class Node[A](var a: A = null.asInstanceOf[A]) extends AtomicReference[Node[A]]
 
 object Actor {
-
   /** Create an `Actor` backed by the given `ExecutorService`. */
-  def apply[A](es: ExecutorService)(handler: A => Unit, onError: Throwable => Unit = throw(_)): Actor[A] = 
+  def applyer[A](es: ExecutorService)(handler: A => Unit, onError: Throwable => Unit = throw(_)): Actor[A] = 
     Actor(Strategy.fromExecutorService(es))(handler, onError)
 }
 
