@@ -75,7 +75,7 @@ object RNG {
 
   def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = rng => {
     val (a, r1) = ra(rng)
-    val (b, r2) = rb(rng)
+    val (b, r2) = rb(r1)
     (f(a, b), r2)
   }
 
@@ -102,7 +102,7 @@ object RNG {
   def map2FromFl[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = flatMap({
     rng =>
       val (a, r) = ra(rng)
-      val (b, r2) = rb(rng)
+      val (b, r2) = rb(r)
       ((a, b), r2)
   })({ case (a, b) => unit(f(a, b)) })
 }
@@ -114,12 +114,12 @@ case class State[S, +A](run: S => (A, S)) {
 
   def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] = flatMap(a => State({ state =>
     val (b, s) = sb.run(state)
-    (f(a, b), state)
+    (f(a, b), s)
   }))
 
   def flatMap[B](f: A => State[S, B]): State[S, B] = State({ state =>
     val (a, s) = run(state)
-    f(a).run(state)
+    f(a).run(s)
   })
 }
 
